@@ -7,14 +7,14 @@ class Import(object):
     def __init__(self):
         pass
 
-    @staticmethod
-    def load_data():
+    def load_data(self):
         f = gzip.open("mnist.pkl.gz", "rb")
-        training_data, validation_data, test_data = pickle.load(f, encoding="latin1")
+        training_data, validation_data, test_data = pickle.load(f)
+        #encoding="latin1"
         f.close()
         return training_data, validation_data, test_data
 
-    @property
+
     def load_data_wrapper(self):
         tr_d, va_d, te_d = self.load_data()
         training_inputs = [np.reshape(x, (784, 1)) for x in tr_d[0]]
@@ -26,8 +26,7 @@ class Import(object):
         test_data = zip(test_inputs, te_d[1])
         return training_data, validation_data, test_data
 
-    @staticmethod
-    def vectorized_result(j):
+    def vectorized_result(self,j):
         e = np.zeros((10, 1))
         e[j] = 1.0
         return e

@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+#!/usr/local/bin/python
 
 # Modules
 
@@ -103,12 +103,7 @@ def one_hot_encoder(vector):
 
 
 # Miscellaneous functions
-def sigmoid(z):
-    return 1.0 / (1.0 + np.exp(-z))
 
-
-def sigmoid_prime(z):
-    return sigmoid(z) * (1 - sigmoid(z))
 
 
 if __name__ == "__main__":
@@ -139,14 +134,16 @@ if __name__ == "__main__":
     y_test = one_hot_encoder(vector=y_test_1d)
     """
 
+    # Get data
     getData = Import()
-    training_data, validation_data, test_data = getData.load_data_wrapper
+    training_data, validation_data, test_data = getData.load_data_wrapper()
 
-    net = Network([784, 30, 10])
+    # Setup and run network
+    mdl = Network([784, 10, 10])
+    mdl.stoc_grad_desc(training_data, 1, 10, 3.0, test_data=test_data)
 
-    """
-    net.SGD(training_data, 3, 10, 3.0, test_data=test_data)
-
-    weights = net.weights
-    biases = net.biases
-    """
+    # Results
+    weights = mdl.weights
+    biases = mdl.biases
+    results = mdl.present_results(test_data=test_data)
+    results.to_csv("fist_results.csv")

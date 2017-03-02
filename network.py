@@ -1,24 +1,39 @@
 import random
 import numpy as np
+import pandas as pd
+
 
 class Network(object):
-
     def __init__(self, sizes):
         self.num_layers = len(sizes)
         self.sizes = sizes
         self.biases = [np.random.randn(y, 1) for y in sizes[1:]]
         self.weights = [np.random.randn(y, x)
                         for x, y in zip(sizes[:-1], sizes[1:])]
+        self.test_results = []
+
+    def sigmoid(self, z):
+        return 1.0 / (1.0 + np.exp(-z))
+
+    def sigmoid_prime(self, z):
+        return self.sigmoid(z) * (1 - self.sigmoid(z))
 
     def feedforward(self, a):
         for b, w in zip(self.biases, self.weights):
-            a = sigmoid(np.dot(w, a) + b)
+            a = self.sigmoid(np.dot(w, a) + b)
             return a
 
-    def SGD(self, training_data, epochs, mini_batch_size, eta,
+    def stoc_grad_desc(
+            self,
+            training_data,
+            epochs,
+            mini_batch_size,
+            eta,
             test_data=None):
 
-        if test_data: n_test = len(test_data)
+        if test_data:
+            n_test = len(test_data)
+
         n = len(training_data)
 
         for j in xrange(epochs):
@@ -29,8 +44,10 @@ class Network(object):
             for mini_batch in mini_batches:
                 self.update_mini_batch(mini_batch, eta)
             if test_data:
+                evaluated = self.evaluate(test_data)
+
                 print("Epoch {0}: {1} / {2}").format(
-                    j, self.evaluate(test_data), n_test)
+                    j, evaluated, n_test)
             else:
                 print("Epoch {0} complete").format(j)
 
@@ -57,17 +74,17 @@ class Network(object):
         for b, w in zip(self.biases, self.weights):
             z = np.dot(w, activation) + b
             zs.append(z)
-            activation = sigmoid(z)
+            activation = self.sigmoid(z)
             activations.append(activation)
 
         # backward pass
-        delta = self.cost_derivative(activations[-1], y) * sigmoid_prime(zs[-1])
+        delta = self.cost_derivative(activations[-1], y) * self.sigmoid_prime(zs[-1])
         nabla_b[-1] = delta
         nabla_w[-1] = np.dot(delta, activations[-2].transpose())
 
         for l in xrange(2, self.num_layers):
             z = zs[-l]
-            sp = sigmoid_prime(z)
+            sp = self.sigmoid_prime(z)
             delta = np.dot(self.weights[-l + 1].transpose(), delta) * sp
             nabla_b[-l] = delta
             nabla_w[-l] = np.dot(delta, activations[-l - 1].transpose())
@@ -80,3 +97,9 @@ class Network(object):
 
     def cost_derivative(self, output_activations, y):
         return output_activations - y
+
+    def present_results(self, test_data):
+        test_results = [(np.argmax(self.feedforward(x)), y)
+                        for (x, y) in test_data]
+        test_results = pd.DataFrame(test_results)
+        return test_results
