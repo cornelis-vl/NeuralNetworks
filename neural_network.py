@@ -96,16 +96,6 @@ def one_hot_encoder(vector):
     return vector_to_matrix
 
 
-# Neural Network
-
-
-
-
-
-# Miscellaneous functions
-
-
-
 if __name__ == "__main__":
     # Script
 
@@ -139,11 +129,11 @@ if __name__ == "__main__":
     training_data, validation_data, test_data = getData.load_data_wrapper()
 
     # Setup and run network
-    mdl = Network([784, 10, 10])
+    mdl = Network([784, 30, 10])
     mdl.stoc_grad_desc(training_data, 1, 10, 3.0, test_data=test_data)
 
     # Results
     weights = mdl.weights
     biases = mdl.biases
     results = mdl.present_results(test_data=test_data)
-    results.to_csv("fist_results.csv")
+    results.to_csv("first_results.csv")
